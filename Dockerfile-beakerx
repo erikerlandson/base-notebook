@@ -1,0 +1,32 @@
+FROM beakerx-base-nb:latest
+
+USER root
+
+RUN yum install -y unzip java-1.8.0-openjdk-devel clang-devel gcc-c++ npm git && yum clean all -y
+
+RUN \
+    cd /opt && \
+    wget -q https://github.com/twosigma/beakerx/archive/master.zip && \
+    unzip master.zip && \
+    rm master.zip && \
+    chmod -R a+rwx beakerx-master
+
+USER $NB_UID
+
+ENV PATH /opt/conda/bin:$PATH
+ENV JAVA_HOME=/usr
+
+RUN \
+    cd /opt/beakerx-master && \
+    ./gradlew --no-daemon build && \
+    ./gradlew --no-daemon kernelInstall && \
+    ./gradlew --no-daemon :beakerx:install && \
+    pip install -e . && \
+    python -m beaker.install --enable --prefix=/opt/conda
+
+RUN chmod a+rwx $HOME && chmod -R a+rwx $HOME/.local
+
+RUN \
+    echo "c.NotebookApp.password = ''" >> /home/$NB_USER/.jupyter/jupyter_notebook_config.py && \
+    echo "c.NotebookApp.password_required = False" >> /home/$NB_USER/.jupyter/jupyter_notebook_config.py && \
+    echo "c.NotebookApp.token = ''" >> /home/$NB_USER/.jupyter/jupyter_notebook_config.py

@@ -15,7 +15,7 @@ ENV PYTHONIOENCODING UTF-8
 ENV CONDA_DIR /opt/conda
 ENV NB_USER=nbuser
 ENV NB_UID=1011
-ENV NB_PYTHON_VER=2.7
+ENV NB_PYTHON_VER=3.5
 
 # Python binary and source dependencies
 RUN yum install -y curl wget java-headless bzip2 gnupg2 sqlite3 \
